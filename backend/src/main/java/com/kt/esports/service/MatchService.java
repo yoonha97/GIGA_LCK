@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class MatchService {
 
 	private final MatchRepository matchRepository;
+	private final YouTubeService youTubeService;
 
 	/**
 	 * 1. 전체 경기 목록 조회
@@ -28,7 +29,8 @@ public class MatchService {
 			return List.of(); // 빈 리스트 반환
 		}
 		return matches.stream()
-				.map(MatchDTO::fromEntity)
+				.map(match -> MatchDTO.fromEntity(match, youTubeService.getReplayLink(
+						match.getHomeTeam(), match.getAwayTeam(), match.getDate())))
 				.collect(Collectors.toList());
 	}
 
@@ -59,7 +61,8 @@ public class MatchService {
 		}
 
 		return matches.stream()
-				.map(MatchDTO::fromEntity)
+				.map(match -> MatchDTO.fromEntity(match, youTubeService.getReplayLink(
+						match.getHomeTeam(), match.getAwayTeam(), match.getDate())))
 				.collect(Collectors.toList());
 	}
 
@@ -73,7 +76,8 @@ public class MatchService {
 		}
 
 		return matches.stream()
-				.map(MatchDTO::fromEntity)
+				.map(match -> MatchDTO.fromEntity(match, youTubeService.getReplayLink(
+						match.getHomeTeam(), match.getAwayTeam(), match.getDate())))
 				.collect(Collectors.toList());
 	}
 }

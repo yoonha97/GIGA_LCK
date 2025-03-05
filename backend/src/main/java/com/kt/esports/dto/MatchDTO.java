@@ -18,9 +18,10 @@ public class MatchDTO {
 	private LocalDate date;
 	private String time;
 	private String score;
+	private String replayLink; // 다시보기 링크
 
 	// Entity → DTO 변환 메서드
-	public static MatchDTO fromEntity(Match match) {
+	public static MatchDTO fromEntity(Match match, String replayLink) {
 		if (match == null) {
 			return null;
 		}
@@ -32,6 +33,7 @@ public class MatchDTO {
 				.date(match.getDate())
 				.time(match.getTime())
 				.score(match.getScore())
+				.replayLink(replayLink)
 				.build();
 	}
 }
