@@ -1,23 +1,30 @@
 package com.kt.esports.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.kt.esports.domain.Review;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ReviewDTO {
-	private Long reviewId;
-	private String matchId;
-	private Integer rating;
-	private String comment;
-	private LocalDateTime createdAt;
+    private Long reviewId;
+    private Long matchId; // 경기 ID
+    private Integer rating;
+    private String comment;
+    private LocalDateTime createdAt;
 
-	public ReviewDTO(Long reviewId, String matchId, Integer rating, String comment, LocalDateTime createdAt) {
-		this.reviewId = reviewId;
-		this.matchId = matchId;
-		this.rating = rating;
-		this.comment = comment;
-		this.createdAt = createdAt;
-	}
+    // Entity → DTO 변환 메서드
+    public static ReviewDTO fromEntity(Review review) {
+        return ReviewDTO.builder()
+                .reviewId(review.getReviewId())
+                .matchId(review.getMatch().getMatchId())
+                .rating(review.getRating())
+                .comment(review.getComment())
+                .createdAt(review.getCreatedAt())
+                .build();
+    }
 }

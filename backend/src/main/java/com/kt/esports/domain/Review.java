@@ -1,32 +1,29 @@
 package com.kt.esports.domain;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews") // DB 테이블명
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Table(name = "reviews")
 public class Review {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "review_id")
-	private Long reviewId; // 리뷰 ID (PK, 자동 증가)
+	@GeneratedValue(strategy = GenerationType.IDENTITY) // SERIAL 자동 증가
+	private Long reviewId;
 
-	@ManyToOne
-	@JoinColumn(name = "match_id", nullable = false) // FK 설정
-	private Match match; // 경기 ID (FK)
+	@ManyToOne(fetch = FetchType.LAZY) // N:1 관계
+	@JoinColumn(name = "match_id", nullable = false)
+	private Match match;
 
-	@Column(name = "rating", nullable = false)
-	private Integer rating; // 평점 (1~5점)
-
-	@Column(name = "comment", columnDefinition = "TEXT", nullable = false)
-	private String comment; // 댓글 내용
-
-	@Column(name = "created_at", updatable = false)
-	private LocalDateTime createdAt = LocalDateTime.now(); // 생성 시간
+	private Integer rating; // 평점
+	private String comment; // 댓글
+	private LocalDateTime createdAt; // 생성일시
 }

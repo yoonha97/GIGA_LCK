@@ -1,27 +1,34 @@
 package com.kt.esports.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-import java.time.LocalDateTime;
-import java.util.List;
+import com.kt.esports.domain.Match;
+import lombok.*;
+
+import java.time.LocalDate;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class MatchDTO {
-	private String matchId;
-	private String team1;
-	private String team2;
-	private LocalDateTime startTime;
-	private String winner;
-	private List<ReviewDTO> reviews;
+	private Long matchId;
+	private String stage;
+	private String homeTeam;
+	private String awayTeam;
+	private LocalDate date;
+	private String time;
+	private String score;
 
-	public MatchDTO(String matchId, String team1, String team2, LocalDateTime startTime, String winner,
-			List<ReviewDTO> reviews) {
-		this.matchId = matchId;
-		this.team1 = team1;
-		this.team2 = team2;
-		this.startTime = startTime;
-		this.winner = winner;
-		this.reviews = reviews;
+	// Entity → DTO 변환 메서드
+	public static MatchDTO fromEntity(Match match) {
+		return MatchDTO.builder()
+				.matchId(match.getMatchId())
+				.stage(match.getStage())
+				.homeTeam(match.getHomeTeam())
+				.awayTeam(match.getAwayTeam())
+				.date(match.getDate())
+				.time(match.getTime())
+				.score(match.getScore())
+				.build();
 	}
 }
