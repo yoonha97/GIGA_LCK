@@ -21,6 +21,9 @@ public class MatchDTO {
 
 	// Entity → DTO 변환 메서드
 	public static MatchDTO fromEntity(Match match) {
+		if (match == null) {
+			return null;
+		}
 		return MatchDTO.builder()
 				.matchId(match.getMatchId())
 				.stage(match.getStage())

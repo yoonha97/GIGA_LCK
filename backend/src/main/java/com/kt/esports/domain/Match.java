@@ -19,10 +19,21 @@ public class Match {
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // SERIAL 자동 증가
 	private Long matchId;
 
+	@Column(nullable = false)
 	private String stage; // 스테이지
+
+	@Column(nullable = false)
 	private String homeTeam; // 홈팀
+
+	@Column(nullable = false)
 	private String awayTeam; // 원정팀
-	private LocalDate date; // 날짜
-	private String time; // 시간
-	private String score; // 점수
+
+	@Column(nullable = false)
+	private LocalDate date; // 경기 날짜
+
+	@Column(nullable = false)
+	private String time; // 경기 시간
+
+	private String score; // 경기 결과 (예: "2-1")
+
 }
