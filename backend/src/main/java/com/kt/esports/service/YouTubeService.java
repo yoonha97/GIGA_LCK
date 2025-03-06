@@ -38,7 +38,7 @@ public class YouTubeService {
 							.queryParam("q", query)
 							.queryParam("type", "video")
 							.queryParam("maxResults", 5)
-							.queryParam("order", "date")
+							.queryParam("order", "relevance")
 							.queryParam("key", apiKey)
 							.build())
 					.retrieve()

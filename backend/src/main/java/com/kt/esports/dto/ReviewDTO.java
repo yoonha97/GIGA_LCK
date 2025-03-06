@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ReviewDTO {
     private Long reviewId;
+    private Long matchId;
     private Integer rating;
     private String comment;
     private LocalDateTime createdAt;
@@ -20,6 +21,7 @@ public class ReviewDTO {
     public static ReviewDTO fromEntity(Review review) {
         return ReviewDTO.builder()
                 .reviewId(review.getReviewId())
+                .matchId(review.getMatch().getMatchId())
                 .rating(review.getRating())
                 .comment(review.getComment())
                 .createdAt(review.getCreatedAt())

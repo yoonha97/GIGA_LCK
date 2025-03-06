@@ -10,23 +10,21 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "Supports")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "Reviews")
-public class Review {
-
+public class Support {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long reviewId;
+	private Long supportId;
 
 	@ManyToOne
-	@JoinColumn(name = "match_id", nullable = false)
-	private Match match;
+	@JoinColumn(name = "team_id", nullable = false)
+	private Team team;
 
-	private Integer rating; // 평점
-	private String comment; // 댓글
+	private String supportComment; // 응원댓글
 	private LocalDateTime createdAt; // 생성일시
 }

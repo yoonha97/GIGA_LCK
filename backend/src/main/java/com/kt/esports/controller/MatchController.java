@@ -16,31 +16,34 @@ public class MatchController {
 
 	private final MatchService matchService;
 
-	/**
-	 * 1. 전체 경기 조회 API
-	 */
+	// 전체 경기 조회
 	@GetMapping
 	public ResponseEntity<List<MatchDTO>> getAllMatches() {
 		List<MatchDTO> matches = matchService.getAllMatches();
 		return matches.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(matches);
 	}
 
-	/**
-	 * 2. 월별 경기 조회 API
-	 */
+	// 월별 경기 조회
 	@GetMapping("/month")
-	public List<MatchDTO> getMatchesByMonth(
+	public ResponseEntity<List<MatchDTO>> getMatchesByMonth(
 			@RequestParam(required = false) Integer year,
 			@RequestParam(required = false) Integer month) {
-		return matchService.getMatchesByMonth(year, month);
+		List<MatchDTO> matches = matchService.getMatchesByMonth(year, month);
+		return matches.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(matches);
 	}
 
-	/**
-	 * 3. 특정 팀 경기 조회 API
-	 */
+	// 특정 팀 경기 조회 (팀 이름 기반)
 	@GetMapping("/team")
-	public List<MatchDTO> getMatchesByTeam(
+	public ResponseEntity<List<MatchDTO>> getMatchesByTeam(
 			@RequestParam String teamName) {
-		return matchService.getMatchesByTeam(teamName);
+		List<MatchDTO> matches = matchService.getMatchesByTeam(teamName);
+		return matches.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(matches);
+	}
+
+	// 특정 경기 상세 조회
+	@GetMapping("/{matchId}")
+	public ResponseEntity<MatchDTO> getMatchById(@PathVariable Long matchId) {
+		MatchDTO match = matchService.getMatchById(matchId);
+		return ResponseEntity.ok(match);
 	}
 }

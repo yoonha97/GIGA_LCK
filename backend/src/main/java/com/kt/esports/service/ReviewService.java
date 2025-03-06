@@ -20,9 +20,12 @@ public class ReviewService {
 	private final ReviewRepository reviewRepository;
 	private final MatchRepository matchRepository;
 
-	// 특정 경기(matchId)의 리뷰 리스트 조회
+	// 특정 경기의 리뷰 리스트 조회
 	public List<ReviewDTO> getReviewsByMatch(Long matchId) {
-		List<Review> reviews = reviewRepository.findByMatch_MatchId(matchId);
+		Match match = matchRepository.findById(matchId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 경기 ID가 없습니다: " + matchId));
+
+		List<Review> reviews = reviewRepository.findByMatch(match);
 		return reviews.stream().map(ReviewDTO::fromEntity).collect(Collectors.toList());
 	}
 
@@ -43,7 +46,7 @@ public class ReviewService {
 		return ReviewDTO.fromEntity(savedReview);
 	}
 
-	// 리뷰 수정
+	// 특정 경기의 리뷰 수정
 	@Transactional
 	public ReviewDTO updateReview(Long matchId, Long reviewId, ReviewDTO reviewDTO) {
 		Match match = matchRepository.findById(matchId)
@@ -63,7 +66,7 @@ public class ReviewService {
 		return ReviewDTO.fromEntity(review);
 	}
 
-	// 리뷰 삭제
+	// 특정 경기의 리뷰 삭제
 	@Transactional
 	public void deleteReview(Long matchId, Long reviewId) {
 		Match match = matchRepository.findById(matchId)

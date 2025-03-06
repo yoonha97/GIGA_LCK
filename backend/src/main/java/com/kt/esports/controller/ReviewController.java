@@ -19,10 +19,10 @@ public class ReviewController {
 	@GetMapping
 	public ResponseEntity<List<ReviewDTO>> getReviewsByMatch(@PathVariable Long matchId) {
 		List<ReviewDTO> reviews = reviewService.getReviewsByMatch(matchId);
-		return ResponseEntity.ok(reviews);
+		return reviews.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(reviews);
 	}
 
-	// 특정 경기에 리뷰 등록
+	// 특정 경기의 리뷰 등록
 	@PostMapping
 	public ResponseEntity<ReviewDTO> createReview(
 			@PathVariable Long matchId,
@@ -33,7 +33,7 @@ public class ReviewController {
 	}
 
 	// 특정 경기의 리뷰 수정
-	@PatchMapping("/{reviewId}")
+	@PutMapping("/{reviewId}")
 	public ResponseEntity<ReviewDTO> updateReview(
 			@PathVariable Long matchId,
 			@PathVariable Long reviewId,
