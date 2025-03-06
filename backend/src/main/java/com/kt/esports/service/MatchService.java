@@ -20,9 +20,7 @@ public class MatchService {
 	private final MatchRepository matchRepository;
 	private final YouTubeService youTubeService;
 
-	/**
-	 * 1. 전체 경기 목록 조회
-	 */
+	// 전체 경기 목록 조회
 	public List<MatchDTO> getAllMatches() {
 		List<Match> matches = matchRepository.findAll();
 		if (matches.isEmpty()) {
@@ -34,10 +32,7 @@ public class MatchService {
 				.collect(Collectors.toList());
 	}
 
-	/**
-	 * 2. 월별 경기 목록 조회
-	 */
-
+	// 월별 경기 목록 조회
 	public List<MatchDTO> getMatchesByMonth(Integer year, Integer month) {
 		// year, month 값이 없으면 가장 최신 경기 날짜를 가져와서 기본값으로 사용
 		if (year == null || month == null) {
@@ -66,9 +61,7 @@ public class MatchService {
 				.collect(Collectors.toList());
 	}
 
-	/**
-	 * 3. 팀별 경기 목록 조회
-	 */
+	// 팀별 경기 목록 조회
 	public List<MatchDTO> getMatchesByTeam(String teamName) {
 		List<Match> matches = matchRepository.findByHomeTeamOrAwayTeam(teamName, teamName);
 		if (matches.isEmpty()) {
@@ -79,5 +72,11 @@ public class MatchService {
 				.map(match -> MatchDTO.fromEntity(match, youTubeService.getReplayLink(
 						match.getHomeTeam(), match.getAwayTeam(), match.getDate())))
 				.collect(Collectors.toList());
+	}
+
+	// 특정 경기 조회 (matchId 기반)
+	public Match getMatchById(Long matchId) {
+		return matchRepository.findById(matchId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 경기 ID가 없습니다: " + matchId));
 	}
 }
