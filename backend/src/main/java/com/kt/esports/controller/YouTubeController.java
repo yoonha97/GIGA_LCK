@@ -20,7 +20,7 @@ public class YouTubeController {
 	// 특정 경기의 유튜브 다시보기 링크 조회
 	@GetMapping
 	public ResponseEntity<Map<String, String>> getReplayLink(@PathVariable Long matchId) {
-		// 경기 정보를 조회
+		// 경기 정보 조회
 		MatchDTO match = matchService.getMatchById(matchId);
 
 		// 유효성 검사 (팀명 또는 날짜가 없을 경우 예외 방지)

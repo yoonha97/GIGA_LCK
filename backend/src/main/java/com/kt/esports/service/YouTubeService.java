@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class YouTubeService {
 
-	private final WebClient webClient;
+	private final WebClient youtubeWebClient;
 
 	@Value("${youtube.api.key}")
 	private String apiKey;
@@ -24,14 +24,14 @@ public class YouTubeService {
 	private static final String LCK_CHANNEL_NAME = "LCK"; // LCK 공식 채널 이름
 
 	// 특정 경기의 다시보기 영상 검색 (LCK 공식 채널)
-	public String getReplayLink(String homeTeam, String awayTeam, LocalDate date) {
+	public String getReplayLink(String homeTeam, String awayTeam, LocalDate matchDate) {
 		// 날짜 포맷팅
-		String formattedDate = date.format(DateTimeFormatter.ofPattern("MM.dd"));
+		String formattedDate = matchDate.format(DateTimeFormatter.ofPattern("MM.dd"));
 		// 검색 쿼리 생성
 		String query = String.format("%s vs %s %s 하이라이트", homeTeam, awayTeam, formattedDate);
 
 		try {
-			Map<String, Object> response = webClient.get()
+			Map<String, Object> response = youtubeWebClient.get()
 					.uri(uriBuilder -> uriBuilder
 							.path("/search")
 							.queryParam("part", "snippet")
