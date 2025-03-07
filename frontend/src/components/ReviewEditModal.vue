@@ -63,7 +63,6 @@
             <button
               type="submit"
               class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-              :disabled="!isValid"
             >
               수정 완료
             </button>
@@ -119,8 +118,15 @@ export default {
     });
 
     const handleSubmit = () => {
-      if (!isValid.value) {
-        alert('별점과 코멘트를 모두 입력해주세요.');
+      // 별점 체크
+      if (localRating.value <= 0) {
+        alert('별점을 선택해주세요.');
+        return;
+      }
+
+      // 코멘트 체크
+      if (localComment.value.trim().length === 0) {
+        alert('코멘트를 입력해주세요.');
         return;
       }
 
