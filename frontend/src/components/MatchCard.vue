@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center justify-between px-6 py-3 bg-white hover:bg-gray-50 hover:shadow-md transition-all duration-200 cursor-pointer"
+    class="flex items-center justify-between px-6 py-3 bg-white hover:bg-gray-50 hover:shadow-md transition-all duration-200"
     @click="navigateToDetail"
   >
     <!-- 경기 시간 및 진행 상태 -->
@@ -41,6 +41,7 @@
         :href="replayLink"
         target="_blank"
         class="px-2 py-1 bg-gray-200 rounded text-sm text-blue-600"
+        @click.stop
       >
         다시보기
       </a>
