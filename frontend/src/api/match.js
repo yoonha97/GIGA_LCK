@@ -56,12 +56,10 @@ export const fetchMatchReviews = async (matchId) => {
   }
   try {
     const response = await axios.get(`${API_BASE_URL}/${matchId}/reviews`);
-    // 응답 데이터에 id가 포함되어 있는지 확인하고 매핑
     return response.data.map((review) => ({
       id: review.reviewId,
       rating: review.rating,
       comment: review.comment,
-      // 필요한 경우 다른 필드들도 추가
     }));
   } catch (error) {
     console.error('경기 리뷰를 불러오는 중 오류 발생:', error);
@@ -84,7 +82,7 @@ export const submitReview = async (matchId, rating, comment) => {
     };
   } catch (error) {
     console.error('리뷰 작성 중 오류 발생:', error);
-    throw error; // 에러를 상위로 전파하여 적절한 처리가 가능하도록 함
+    throw error;
   }
 };
 
