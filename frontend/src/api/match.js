@@ -30,6 +30,7 @@ export const fetchMatchById = async (matchId) => {
 export const fetchYoutubeHighlight = async (matchId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/${matchId}/youtube`);
+    console.log(response.data);
     return response.data.youtubeUrl;
   } catch (error) {
     console.error('유튜브 하이라이트를 불러오는 중 오류 발생:', error);
