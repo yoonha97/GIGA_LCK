@@ -43,6 +43,7 @@
         <MatchCard
           v-for="match in group"
           :key="match.matchId"
+          :matchId="match.matchId"
           :time="match.time"
           :stage="match.stage"
           :homeTeam="match.homeTeam"

@@ -1,5 +1,8 @@
 <template>
-  <div class="flex items-center justify-between px-6 py-3 bg-white">
+  <div
+    class="flex items-center justify-between px-6 py-3 bg-white hover:bg-gray-50 hover:shadow-md transition-all duration-200 cursor-pointer"
+    @click="navigateToDetail"
+  >
     <!-- 경기 시간 및 진행 상태 -->
     <div class="w-32 flex flex-col">
       <span class="text-sm text-gray-600">{{ time }}</span>
@@ -47,6 +50,7 @@
 
 <script>
 import { defineComponent } from 'vue';
+import { useRouter } from 'vue-router';
 import T1Logo from '@/assets/images/T1.svg';
 import GENLogo from '@/assets/images/GEN.svg';
 import DKLogo from '@/assets/images/DK.svg';
@@ -60,12 +64,27 @@ import BFXLogo from '@/assets/images/BFX.webp';
 
 export default defineComponent({
   props: {
+    matchId: {
+      type: [String, Number],
+      required: true,
+    },
     time: String,
     stage: String,
     homeTeam: String,
     score: String,
     awayTeam: String,
     replayLink: String,
+  },
+  setup(props) {
+    const router = useRouter();
+
+    const navigateToDetail = () => {
+      router.push(`/matches/${props.matchId}`);
+    };
+
+    return {
+      navigateToDetail,
+    };
   },
   methods: {
     getTeamLogo(teamName) {
