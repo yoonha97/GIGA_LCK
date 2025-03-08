@@ -1,5 +1,8 @@
 <template>
   <main class="container mx-auto py-8 px-4">
+    <h1 class="text-center mt-2 text-3xl md:text-4xl font-bold mb-4">
+      LCK 경기 일정
+    </h1>
     <div class="space-y-2">
       <MatchList />
     </div>

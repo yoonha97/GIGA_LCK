@@ -31,24 +31,31 @@
           <button
             v-for="team in teams"
             :key="team.id"
-            @click="toggleTeamFilter(team.id)"
-            class="team-filter-button flex items-center space-x-1 rounded-full px-3 py-1.5 transition-colors"
+            class="team-filter-button flex items-center space-x-2 rounded-full px-4 py-2 transition-colors"
             :class="
               selectedTeam === team.id
                 ? 'bg-blue-500 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             "
           >
+            <!-- 팀 로고 - 클릭 시 팀 상세 페이지로 이동 -->
             <div
-              class="w-5 h-5 flex-shrink-0 rounded-full bg-white overflow-hidden flex items-center justify-center"
+              class="w-7 h-7 flex-shrink-0 rounded-full bg-white overflow-hidden flex items-center justify-center cursor-pointer"
+              @click.stop="navigateToTeam(team.id)"
+              title="팀 상세정보 보기"
             >
               <img
                 :src="team.logo"
                 :alt="team.name"
-                class="w-4 h-4 object-contain"
+                class="w-6 h-6 object-contain"
               />
             </div>
-            <span class="text-sm font-medium">{{ team.name }}</span>
+            <!-- 팀 이름 - 클릭 시 팀 필터링 -->
+            <span
+              class="text-sm font-medium"
+              @click.stop="toggleTeamFilter(team.id)"
+              >{{ team.name }}</span
+            >
           </button>
         </div>
       </div>
@@ -90,6 +97,7 @@
 
 <script>
 import { ref, computed, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useMatchStore } from '@/stores/matchStore';
 import MatchCard from '@/components/MatchCard.vue';
 import T1Logo from '@/assets/images/T1.svg';
@@ -110,6 +118,7 @@ export default {
   setup() {
     // 매치 스토어 초기화
     const matchStore = useMatchStore();
+    const router = useRouter();
 
     // 스토어 메서드 로깅
     console.log(
@@ -259,6 +268,10 @@ export default {
       }, {});
     });
 
+    const navigateToTeam = (teamId) => {
+      router.push({ name: 'TeamDetailById', params: { teamId } });
+    };
+
     watch([selectedYear, selectedMonth], () => {
       fetchMatches();
     });
@@ -280,6 +293,7 @@ export default {
       clearTeamFilter,
       getTeamName,
       filteredMatches,
+      navigateToTeam,
     };
   },
 };

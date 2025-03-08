@@ -13,7 +13,11 @@
     <div class="flex items-center justify-between w-full max-w-2xl mt-10">
       <!-- 홈팀 -->
       <div class="w-32 flex flex-col items-center">
-        <div class="w-16 h-16 flex items-center justify-center">
+        <div
+          class="w-16 h-16 flex items-center justify-center cursor-pointer rounded-lg transition-colors"
+          @click="navigateToTeam(homeTeam)"
+          title="팀 상세 페이지로 이동"
+        >
           <img
             :src="getTeamLogo(homeTeam)"
             class="max-w-full max-h-full object-contain"
@@ -27,7 +31,11 @@
 
       <!-- 원정팀 -->
       <div class="w-32 flex flex-col items-center">
-        <div class="w-16 h-16 flex items-center justify-center">
+        <div
+          class="w-16 h-16 flex items-center justify-center cursor-pointer rounded-lg transition-colors"
+          @click="navigateToTeam(awayTeam)"
+          title="팀 상세 페이지로 이동"
+        >
           <img
             :src="getTeamLogo(awayTeam)"
             class="max-w-full max-h-full object-contain"
@@ -41,6 +49,7 @@
 
 <script>
 import { defineComponent } from 'vue';
+import { useRouter } from 'vue-router';
 import T1Logo from '@/assets/images/T1.svg';
 import GENLogo from '@/assets/images/GEN.svg';
 import DKLogo from '@/assets/images/DK.svg';
@@ -79,8 +88,10 @@ export default defineComponent({
       required: true,
     },
   },
-  methods: {
-    getTeamLogo(teamName) {
+  setup() {
+    const router = useRouter();
+
+    const getTeamLogo = (teamName) => {
       const logos = {
         T1: T1Logo,
         GEN: GENLogo,
@@ -94,7 +105,19 @@ export default defineComponent({
         BFX: BFXLogo,
       };
       return logos[teamName] || '';
-    },
+    };
+
+    const navigateToTeam = (teamName) => {
+      router.push({
+        name: 'TeamDetailByName',
+        params: { teamName },
+      });
+    };
+
+    return {
+      getTeamLogo,
+      navigateToTeam,
+    };
   },
 });
 </script>

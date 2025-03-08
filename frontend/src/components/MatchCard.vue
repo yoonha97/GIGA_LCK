@@ -13,7 +13,11 @@
     <div class="flex-1 flex items-center justify-between max-w-2xl">
       <div class="w-32 flex items-center justify-end">
         <span class="text-gray-800 font-semibold">{{ homeTeam }}</span>
-        <div class="w-6 h-6 ml-2 flex items-center justify-center">
+        <div
+          class="w-6 h-6 ml-2 flex items-center justify-center cursor-pointer"
+          @click.stop="navigateToTeam(homeTeam)"
+          title="팀 상세정보 보기"
+        >
           <img
             :src="getTeamLogo(homeTeam)"
             class="max-w-full max-h-full object-contain"
@@ -24,7 +28,11 @@
       <span class="w-20 text-center font-bold text-lg">{{ score }}</span>
 
       <div class="w-32 flex items-center justify-start">
-        <div class="w-6 h-6 mr-2 flex items-center justify-center">
+        <div
+          class="w-6 h-6 mr-2 flex items-center justify-center cursor-pointer"
+          @click.stop="navigateToTeam(awayTeam)"
+          title="팀 상세정보 보기"
+        >
           <img
             :src="getTeamLogo(awayTeam)"
             class="max-w-full max-h-full object-contain"
@@ -83,8 +91,13 @@ export default defineComponent({
       router.push(`/matches/${props.matchId}`);
     };
 
+    const navigateToTeam = (teamName) => {
+      router.push({ name: 'TeamDetailByName', params: { teamName } });
+    };
+
     return {
       navigateToDetail,
+      navigateToTeam,
     };
   },
   methods: {
