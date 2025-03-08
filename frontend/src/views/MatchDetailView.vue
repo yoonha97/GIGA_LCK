@@ -38,7 +38,7 @@
         </div>
         <div>
           <!-- 관련 뉴스 -->
-          <NewsSection v-if="news.length > 0" :newsList="news" />
+          <NewsSection :newsList="news" />
         </div>
       </div>
     </div>
