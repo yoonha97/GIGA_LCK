@@ -135,6 +135,9 @@
           최근 경기 데이터가 없습니다.
         </div>
       </div>
+
+      <!-- 팀 응원 댓글 섹션 -->
+      <SupportSection :teamId="getTeamId()" />
     </div>
 
     <!-- 데이터 없음 -->
@@ -158,8 +161,12 @@ import HLELogo from '@/assets/images/HLE.svg';
 import KTLogo from '@/assets/images/KT.svg';
 import DNFLogo from '@/assets/images/DNF.svg';
 import BFXLogo from '@/assets/images/BFX.webp';
+import SupportSection from '@/components/SupportSection.vue';
 
 export default {
+  components: {
+    SupportSection,
+  },
   setup() {
     const teamStore = useTeamStore();
     const route = useRoute();
@@ -232,11 +239,16 @@ export default {
       });
     };
 
+    const getTeamId = () => {
+      return route.params.teamId || route.params.teamName;
+    };
+
     return {
       teamStore,
       getTeamLogo,
       getTeamFullName,
       navigateToTeam,
+      getTeamId,
     };
   },
 };
