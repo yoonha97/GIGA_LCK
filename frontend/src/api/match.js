@@ -57,11 +57,24 @@ export const fetchMatchReviews = async (matchId) => {
   }
   try {
     const response = await axios.get(`${API_BASE_URL}/${matchId}/reviews`);
-    return response.data.map((review) => ({
-      id: review.reviewId,
-      rating: review.rating,
-      comment: review.comment,
-    }));
+
+    // 백엔드에서 204 No Content를 반환할 경우, response.data가 undefined일 수 있음
+    if (!response.data) {
+      console.warn(`경기 ${matchId}의 리뷰가 없습니다.`);
+      return []; // 빈 배열 반환
+    }
+
+    // 데이터가 배열인지 확인 후 처리
+    if (Array.isArray(response.data)) {
+      return response.data.map((review) => ({
+        id: review.reviewId,
+        rating: review.rating,
+        comment: review.comment,
+      }));
+    } else {
+      console.warn('서버 응답 데이터가 배열이 아님:', response.data);
+      return [];
+    }
   } catch (error) {
     console.error('경기 리뷰를 불러오는 중 오류 발생:', error);
     return [];
