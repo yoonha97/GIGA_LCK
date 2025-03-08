@@ -130,3 +130,39 @@ export const deleteReview = async (matchId, reviewId) => {
     throw error;
   }
 };
+
+// 팀별 경기 데이터 가져오기
+export const fetchMatchesByTeam = async (teamId) => {
+  try {
+    // Try multiple possible endpoint formats
+    let response;
+
+    try {
+      // Option 1: RESTful path parameter
+      response = await axios.get(`${API_BASE_URL}/team/${teamId}`);
+    } catch (firstError) {
+      console.warn('First attempt failed, trying alternative endpoint format');
+
+      try {
+        // Option 2: Query parameter
+        response = await axios.get(`${API_BASE_URL}/team`, {
+          params: { teamName: teamId },
+        });
+      } catch (secondError) {
+        console.warn('Second attempt failed, trying final endpoint format');
+
+        // Option 3: Different endpoint name based on Java method
+        response = await axios.get(`${API_BASE_URL}/by-team`, {
+          params: { teamName: teamId },
+        });
+      }
+    }
+
+    console.log('Team matches API response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('팀별 경기 데이터를 불러오는 중 오류 발생:', error);
+    console.error('Error details:', error.response?.data || error.message);
+    return [];
+  }
+};

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { fetchMatchesByMonth } from '@/api/match';
+import { fetchMatchesByMonth, fetchMatchesByTeam } from '@/api/match';
 
 export const useMatchStore = defineStore('matchStore', {
   state: () => ({
@@ -8,6 +8,9 @@ export const useMatchStore = defineStore('matchStore', {
   actions: {
     async loadMatches(year, month) {
       this.matches = await fetchMatchesByMonth(year, month);
+    },
+    async loadTeamMatches(teamId) {
+      this.matches = await fetchMatchesByTeam(teamId);
     },
   },
 });
