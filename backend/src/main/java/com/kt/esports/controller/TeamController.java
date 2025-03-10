@@ -1,5 +1,6 @@
 package com.kt.esports.controller;
 
+import com.kt.esports.dto.PlayerDTO;
 import com.kt.esports.dto.TeamDTO;
 import com.kt.esports.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,5 +36,12 @@ public class TeamController {
 	@GetMapping("/by-name/{teamName}")
 	public ResponseEntity<TeamDTO> getTeamByName(@PathVariable String teamName) {
 		return ResponseEntity.ok(teamService.getTeamByName(teamName));
+	}
+
+	// 팀 소속 선수 목록 조회
+	@GetMapping("/{teamId}/players")
+	public ResponseEntity<List<PlayerDTO>> getTeamPlayers(@PathVariable Long teamId) {
+		List<PlayerDTO> players = teamService.getTeamPlayers(teamId);
+		return ResponseEntity.ok(players);
 	}
 }

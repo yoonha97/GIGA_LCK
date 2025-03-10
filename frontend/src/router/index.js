@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue';
 import MatchDetailView from '@/views/MatchDetailView.vue';
 import TeamListView from '@/views/TeamListView.vue';
 import TeamDetailView from '@/views/TeamDetailView.vue';
+import PlayerAdminView from '@/views/PlayerAdminView.vue';
 
 const routes = [
   {
@@ -31,6 +32,11 @@ const routes = [
     name: 'TeamDetailByName',
     component: TeamDetailView,
     props: true,
+  },
+  {
+    path: '/admin/players',
+    name: 'PlayerAdmin',
+    component: PlayerAdminView,
   },
 ];
 

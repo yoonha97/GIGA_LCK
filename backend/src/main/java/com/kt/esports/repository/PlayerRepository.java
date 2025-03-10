@@ -11,4 +11,7 @@ import java.util.List;
 public interface PlayerRepository extends JpaRepository<Player, Long> {
 	// 팀으로 선수 조회
 	List<Player> findByTeam(Team team);
+
+	// 포지션으로 선수 조회
+	List<Player> findByPosition(String position);
 }

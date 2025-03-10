@@ -8,7 +8,7 @@
 import TeamDetail from '@/components/TeamDetail.vue';
 
 export default {
-  name: 'TeamView',
+  name: 'TeamDetailView',
   components: {
     TeamDetail,
   },

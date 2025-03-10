@@ -109,32 +109,34 @@
           <div
             v-for="(player, index) in teamStore.currentTeam.players"
             :key="index"
-            class="bg-white p-5 rounded-lg shadow-sm flex items-center space-x-4 hover:shadow-md transition-shadow"
+            class="bg-white p-5 rounded-lg shadow-sm flex items-center space-x-4 hover:shadow-md transition-shadow cursor-pointer"
+            @click="openPlayerModal(player)"
           >
             <div
-              class="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold cursor-pointer hover:bg-blue-600 transition-colors"
-              @click="navigateToTeam()"
-              title="팀 상세 페이지로 이동"
+              class="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold hover:bg-blue-600 transition-colors"
+              title="선수 상세 정보 보기"
             >
-              <span>{{ player.charAt(0) }}</span>
+              <span>{{ getPlayerInitial(player) }}</span>
             </div>
             <div>
-              <div class="font-medium text-lg">{{ player }}</div>
-              <div class="text-gray-500 text-sm">선수</div>
+              <div class="font-medium text-lg">{{ getPlayerName(player) }}</div>
+              <div class="text-gray-500 text-sm flex items-center">
+                <span class="text-blue-500 text-xs">상세 정보 보기</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- 최근 경기 결과 섹션 (예시) -->
-      <div class="bg-gray-50 rounded-lg p-6">
+      <!-- <div class="bg-gray-50 rounded-lg p-6">
         <h2 class="text-2xl font-semibold mb-6 border-b pb-3">
           최근 경기 결과
         </h2>
         <div class="text-gray-500 text-lg py-10 text-center">
           최근 경기 데이터가 없습니다.
         </div>
-      </div>
+      </div> -->
 
       <!-- 팀 응원 댓글 섹션 -->
       <SupportSection :teamId="getTeamId()" />
@@ -144,12 +146,20 @@
     <div v-else class="text-center text-gray-500 py-20 text-lg">
       팀 정보를 찾을 수 없습니다.
     </div>
+
+    <!-- 선수 모달 -->
+    <PlayerDetailModal
+      v-if="isPlayerModalOpen"
+      :is-open="isPlayerModalOpen"
+      @close="closePlayerModal"
+    />
   </div>
 </template>
 
 <script>
 import { useTeamStore } from '@/stores/teamStore';
-import { onMounted, onUnmounted } from 'vue';
+import { usePlayerStore } from '@/stores/playerStore';
+import { onMounted, onUnmounted, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import T1Logo from '@/assets/images/T1.svg';
 import GENLogo from '@/assets/images/GEN.svg';
@@ -162,15 +172,21 @@ import KTLogo from '@/assets/images/KT.svg';
 import DNFLogo from '@/assets/images/DNF.svg';
 import BFXLogo from '@/assets/images/BFX.webp';
 import SupportSection from '@/components/SupportSection.vue';
+import PlayerDetailModal from '@/components/PlayerDetailModal.vue';
 
 export default {
   components: {
     SupportSection,
+    PlayerDetailModal,
   },
   setup() {
     const teamStore = useTeamStore();
+    const playerStore = usePlayerStore();
     const route = useRoute();
     const router = useRouter();
+
+    // 선수 모달 관련 상태
+    const isPlayerModalOpen = ref(false);
 
     onMounted(async () => {
       const { teamId, teamName } = route.params;
@@ -184,6 +200,7 @@ export default {
 
     onUnmounted(() => {
       teamStore.clearCurrentTeam();
+      playerStore.clearCurrentPlayer();
     });
 
     // 팀 로고 가져오기
@@ -243,12 +260,57 @@ export default {
       return route.params.teamId || route.params.teamName;
     };
 
+    // 선수 카드 클릭 시 모달 열기 (playerStore 사용)
+    const openPlayerModal = async (player) => {
+      // 모달 열기
+      isPlayerModalOpen.value = true;
+
+      // 선수 이름 추출
+      const playerName =
+        typeof player === 'object' ? player.playerName : player;
+
+      // playerStore를 통해 선수 정보 로드
+      await playerStore.loadPlayerByName(playerName);
+    };
+
+    // 모달 닫기
+    const closePlayerModal = () => {
+      playerStore.clearCurrentPlayer();
+      isPlayerModalOpen.value = false;
+    };
+
+    // 선수 이름 추출
+    const getPlayerName = (player) => {
+      if (typeof player === 'object') {
+        return player.playerName;
+      } else if (typeof player === 'string') {
+        return player;
+      }
+      return '선수 이름 정보 없음';
+    };
+
+    // 선수 초기 문자 추출
+    const getPlayerInitial = (player) => {
+      if (typeof player === 'object') {
+        return player.playerName.charAt(0);
+      } else if (typeof player === 'string') {
+        return player.charAt(0);
+      }
+      return '선수 초기 문자 정보 없음';
+    };
+
     return {
       teamStore,
+      playerStore,
       getTeamLogo,
       getTeamFullName,
       navigateToTeam,
       getTeamId,
+      isPlayerModalOpen,
+      openPlayerModal,
+      closePlayerModal,
+      getPlayerName,
+      getPlayerInitial,
     };
   },
 };
