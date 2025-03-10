@@ -1,12 +1,16 @@
 import { defineStore } from 'pinia';
 import { getDetailedPlayerInfo } from '@/api/player';
+import { getPlayerAnalysis } from '@/api/analysis';
 
 export const usePlayerStore = defineStore('player', {
   state: () => ({
     players: {}, // 플레이어 데이터 캐시 (키: 플레이어 이름)
     currentPlayer: null, // 현재 선택된 플레이어
+    playerAnalysis: null, // 플레이어 분석 데이터
     loading: false, // 로딩 상태
+    analysisLoading: false, // 분석 데이터 로딩 상태
     error: null, // 에러 상태
+    analysisError: null, // 분석 데이터 에러 상태
   }),
 
   actions: {
@@ -46,8 +50,49 @@ export const usePlayerStore = defineStore('player', {
       }
     },
 
+    // 플레이어 분석 정보 로드
+    async loadPlayerAnalysis(gameName, tagLine) {
+      console.log(
+        `loadPlayerAnalysis called with gameName=${gameName}, tagLine=${tagLine}`
+      );
+
+      if (!gameName || !tagLine) {
+        console.error('Cannot load analysis: missing required parameters', {
+          gameName,
+          tagLine,
+        });
+        this.analysisError =
+          '분석 정보를 불러오기 위한 필수 매개변수가 누락되었습니다.';
+        return null;
+      }
+
+      this.analysisLoading = true;
+      this.analysisError = null;
+      this.playerAnalysis = null;
+
+      try {
+        console.log('Calling getPlayerAnalysis API function');
+        const analysisData = await getPlayerAnalysis(gameName, tagLine);
+        console.log('분석 데이터 로드:', analysisData);
+
+        if (!analysisData) {
+          throw new Error('분석 정보를 찾을 수 없습니다.');
+        }
+
+        this.playerAnalysis = analysisData;
+        return analysisData;
+      } catch (error) {
+        this.analysisError = '분석 정보를 불러오는 중 오류가 발생했습니다.';
+        console.error('분석 정보를 불러오는 중 오류 발생:', error);
+        return null;
+      } finally {
+        this.analysisLoading = false;
+      }
+    },
+
     clearCurrentPlayer() {
       this.currentPlayer = null;
+      this.playerAnalysis = null;
     },
   },
 

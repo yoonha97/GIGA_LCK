@@ -8,9 +8,7 @@
 
     <!-- 모달 -->
     <div class="flex items-center justify-center min-h-screen p-4">
-      <div
-        class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto"
-      >
+      <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
         <div class="flex justify-between items-center mb-6">
           <h3 class="text-2xl font-bold">선수 상세 정보</h3>
           <button
@@ -101,22 +99,7 @@
 
               <!-- 분석 정보 표시 -->
               <div v-else-if="playerStore.playerAnalysis" class="py-2">
-                <!-- 계정 정보 표시 -->
-                <div class="mb-4 flex items-center bg-blue-50 rounded-lg p-3">
-                  <div
-                    class="bg-blue-100 text-blue-800 font-semibold rounded-full py-1 px-3 text-sm mr-2"
-                  >
-                    {{ playerStore.playerAnalysis.gameName }}#{{
-                      playerStore.playerAnalysis.tagLine
-                    }}
-                  </div>
-                  <span class="text-gray-500 text-sm">계정 분석 데이터</span>
-                </div>
-
-                <!-- 분석 내용 -->
-                <div
-                  class="prose prose-sm max-w-none bg-white p-4 rounded-lg border border-gray-200"
-                >
+                <div class="prose prose-sm max-w-none">
                   <div v-html="formattedAnalysis"></div>
                 </div>
               </div>
@@ -207,65 +190,22 @@ export default {
         return '';
       }
 
-      // 분석 텍스트 가져오기
+      // 분석 텍스트에서 마크다운 포맷을 HTML로 변환
       let text = playerStore.playerAnalysis.analysis;
 
-      // '#' 기호로 분리된 섹션 처리 (API 응답 형식에 맞게)
-      const sections = text
-        .split('#')
-        .filter((section) => section.trim() !== '');
-
-      let formattedHtml = '';
-
-      // 각 섹션을 개별적으로 처리
-      sections.forEach((section) => {
-        section = section.trim();
-
-        // 섹션 제목과 내용 분리
-        const sectionParts = section.split('\n', 2);
-        const title = sectionParts[0].trim();
-        const content = section.substring(title.length).trim();
-
-        // 섹션 HTML 생성
-        formattedHtml += `
-          <div class="mb-6">
-            <h3 class="text-lg font-bold text-blue-800 mb-3">${title}</h3>
-            <div class="text-gray-700">
-        `;
-
-        // 내용 처리: 단락으로 분리
-        const paragraphs = content.split('\n\n').filter((p) => p.trim() !== '');
-
-        // 각 단락 처리
-        paragraphs.forEach((paragraph) => {
-          // 목록 항목 처리 (예: - 항목1)
-          if (paragraph.trim().startsWith('-')) {
-            formattedHtml += '<ul class="list-disc pl-6 mb-2 space-y-1.5">';
-
-            paragraph.split('\n').forEach((item) => {
-              if (item.trim().startsWith('-')) {
-                const itemContent = item.trim().substring(1).trim();
-                formattedHtml += `<li>${itemContent}</li>`;
-              }
-            });
-
-            formattedHtml += '</ul>';
-          } else {
-            // 일반 단락 처리
-            formattedHtml += `<p class="mb-3">${paragraph}</p>`;
-          }
-        });
-
-        formattedHtml += '</div></div>';
-      });
-
-      // 강조 텍스트 변환 (**: 볼드)
-      formattedHtml = formattedHtml.replace(
-        /\*\*(.*?)\*\*/g,
-        '<strong class="font-semibold">$1</strong>'
+      // 제목 변환
+      text = text.replace(
+        /##\s+(.*?)(?:\n|$)/g,
+        '<h3 class="font-bold text-lg mt-3 mb-2">$1</h3>'
       );
 
-      return formattedHtml;
+      // 강조 텍스트 변환
+      text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+      // 줄바꿈 유지
+      text = text.replace(/\n\n/g, '</p><p class="mb-2">');
+
+      return `<p class="mb-2">${text}</p>`;
     });
 
     // 선수 이니셜 계산
@@ -339,25 +279,9 @@ export default {
 }
 .prose p {
   margin-bottom: 0.75em;
-  line-height: 1.6;
 }
 .prose strong {
   font-weight: 600;
   color: #111827;
-}
-.prose h3 {
-  position: relative;
-  padding-left: 0.75rem;
-  border-left: 3px solid #3b82f6;
-}
-.prose ul {
-  margin-top: 0.5em;
-  margin-bottom: 1em;
-}
-.prose li {
-  margin-bottom: 0.25em;
-}
-.prose li strong {
-  color: #1e40af;
 }
 </style>

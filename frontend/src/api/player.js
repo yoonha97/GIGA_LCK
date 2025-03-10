@@ -178,6 +178,41 @@ export const getPlayerDetailsByName = async (playerName) => {
   }
 };
 
+// 선수의 Riot 계정 정보 가져오기
+export const getPlayerAccountInfo = async (playerId) => {
+  try {
+    console.log('Fetching player account info for ID:', playerId);
+
+    // API 엔드포인트 수정 - 백엔드 구조에 맞게 경로 설정
+    const API_ACCOUNTS_URL = 'http://localhost:8080/api/players';
+
+    const response = await axios.get(
+      `${API_ACCOUNTS_URL}/${playerId}/accounts`
+    );
+    console.log('Raw account info response:', response.data);
+
+    // 응답이 배열 형태이므로 첫 번째 계정 정보를 반환 (여러 계정이 있을 수 있음)
+    if (response.data && response.data.length > 0) {
+      const accountInfo = {
+        riotId: response.data[0].riotId,
+        tagLine: response.data[0].tagLine,
+      };
+      console.log('Extracted account info:', accountInfo);
+      return accountInfo;
+    } else {
+      console.log('No account info found for player:', playerId);
+      return null;
+    }
+  } catch (error) {
+    console.error('선수의 계정 정보를 불러오는 중 오류 발생:', error);
+    if (error.response) {
+      console.error('Error status:', error.response.status);
+      console.error('Error data:', error.response.data);
+    }
+    return null;
+  }
+};
+
 // 추가 선수 정보 - 모달에 표시할 더 많은 정보
 export const getDetailedPlayerInfo = async (playerName) => {
   console.log('선수 상세 정보 조회 시작:', playerName);
@@ -192,7 +227,37 @@ export const getDetailedPlayerInfo = async (playerName) => {
       playerFromAPI.name = playerFromAPI.playerName;
     }
 
-    console.log('반환할 선수 정보:', playerFromAPI);
+    // 선수의 Riot 계정 정보 가져오기
+    if (playerFromAPI.playerId) {
+      try {
+        console.log(
+          'Attempting to fetch account info for playerId:',
+          playerFromAPI.playerId
+        );
+        const accountInfo = await getPlayerAccountInfo(playerFromAPI.playerId);
+
+        if (accountInfo) {
+          console.log('Successfully fetched account info:', accountInfo);
+          playerFromAPI.riotId = accountInfo.riotId;
+          playerFromAPI.tagLine = accountInfo.tagLine;
+        } else {
+          console.warn(
+            'No account info returned for player:',
+            playerFromAPI.playerId
+          );
+          playerFromAPI.riotId = null;
+          playerFromAPI.tagLine = null;
+        }
+      } catch (err) {
+        console.error('Riot 계정 정보를 가져오는 중 오류 발생:', err);
+        playerFromAPI.riotId = null;
+        playerFromAPI.tagLine = null;
+      }
+    } else {
+      console.warn('Player has no playerId:', playerFromAPI);
+    }
+
+    console.log('반환할 완성된 선수 정보:', playerFromAPI);
     return playerFromAPI;
   }
 

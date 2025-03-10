@@ -151,6 +151,8 @@
     <PlayerDetailModal
       v-if="isPlayerModalOpen"
       :is-open="isPlayerModalOpen"
+      :game-name="currentPlayerGameName"
+      :tag-line="currentPlayerTagLine"
       @close="closePlayerModal"
     />
   </div>
@@ -187,6 +189,8 @@ export default {
 
     // 선수 모달 관련 상태
     const isPlayerModalOpen = ref(false);
+    const currentPlayerGameName = ref(null);
+    const currentPlayerTagLine = ref(null);
 
     onMounted(async () => {
       const { teamId, teamName } = route.params;
@@ -269,14 +273,52 @@ export default {
       const playerName =
         typeof player === 'object' ? player.playerName : player;
 
+      console.log('Opening player modal for:', playerName, player);
+
       // playerStore를 통해 선수 정보 로드
       await playerStore.loadPlayerByName(playerName);
+
+      // 선수 정보를 로드한 후 Riot ID와 tagLine 설정
+      if (playerStore.currentPlayer) {
+        // API에서 정보 가져오기
+        currentPlayerGameName.value = playerStore.currentPlayer.riotId || null;
+        currentPlayerTagLine.value = playerStore.currentPlayer.tagLine || null;
+
+        // 디버그: API에서 가져오지 못한 경우 임시 테스트용 데이터 사용
+        // 실제 데이터베이스에 일치하는 값으로 변경
+        if (!currentPlayerGameName.value && !currentPlayerTagLine.value) {
+          console.log('DEBUG: Using hardcoded test values');
+          if (playerName === '페이커' || playerName === 'Faker') {
+            currentPlayerGameName.value = 'diuepoti';
+            currentPlayerTagLine.value = 'qesdf';
+          } else if (playerName === '쿠즈' || playerName === 'Cuzz') {
+            currentPlayerGameName.value = 'Cuzz';
+            currentPlayerTagLine.value = 'KR1';
+          } else if (playerName === '켈린' || playerName === 'Kellin') {
+            currentPlayerGameName.value = '아구몬';
+            currentPlayerTagLine.value = '0509';
+          } else if (playerName === '데프트' || playerName === 'Deft') {
+            currentPlayerGameName.value = '스컬지';
+            currentPlayerTagLine.value = 'K T';
+          } else if (playerName === '피넛' || playerName === 'Peanut') {
+            currentPlayerGameName.value = '나는먼지';
+            currentPlayerTagLine.value = 'KR11';
+          }
+        }
+
+        console.log('Player account info:', {
+          riotId: currentPlayerGameName.value,
+          tagLine: currentPlayerTagLine.value,
+        });
+      }
     };
 
-    // 모달 닫기
+    // 선수 모달 닫기
     const closePlayerModal = () => {
-      playerStore.clearCurrentPlayer();
       isPlayerModalOpen.value = false;
+      currentPlayerGameName.value = null;
+      currentPlayerTagLine.value = null;
+      playerStore.clearCurrentPlayer();
     };
 
     // 선수 이름 추출
@@ -311,6 +353,8 @@ export default {
       closePlayerModal,
       getPlayerName,
       getPlayerInitial,
+      currentPlayerGameName,
+      currentPlayerTagLine,
     };
   },
 };
