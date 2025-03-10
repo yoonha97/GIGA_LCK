@@ -69,53 +69,6 @@
           <div class="border-t pt-4">
             <h5 class="font-semibold text-lg mb-2">선수 정보</h5>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <p class="text-gray-600 text-sm">나이</p>
-                <p class="font-medium">
-                  {{ playerStore.currentPlayer.age || '-' }}
-                </p>
-              </div>
-              <div>
-                <p class="text-gray-600 text-sm">국적</p>
-                <p class="font-medium">
-                  {{ playerStore.currentPlayer.nationality || '대한민국' }}
-                </p>
-              </div>
-              <div>
-                <p class="text-gray-600 text-sm">신장</p>
-                <p class="font-medium">
-                  {{ playerStore.currentPlayer.height || '-' }}
-                </p>
-              </div>
-              <div>
-                <p class="text-gray-600 text-sm">합류일</p>
-                <p class="font-medium">
-                  {{ playerStore.currentPlayer.joinDate || '-' }}
-                </p>
-              </div>
-            </div>
-
-            <div
-              v-if="
-                playerStore.currentPlayer.achievements &&
-                playerStore.currentPlayer.achievements.length > 0
-              "
-              class="mb-4"
-            >
-              <h5 class="font-semibold text-lg mb-2">주요 성과</h5>
-              <ul class="list-disc pl-5">
-                <li
-                  v-for="(achievement, index) in playerStore.currentPlayer
-                    .achievements"
-                  :key="index"
-                  class="mb-1"
-                >
-                  {{ achievement }}
-                </li>
-              </ul>
-            </div>
-
             <div v-if="playerStore.currentPlayer.description" class="mb-4">
               <h5 class="font-semibold text-lg mb-2">선수 소개</h5>
               <p class="text-gray-700">
