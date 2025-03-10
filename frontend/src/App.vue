@@ -19,8 +19,13 @@
             >
               LCK Teams
             </RouterLink>
+            <RouterLink
+              to="/admin/players"
+              class="text-xl font-bold text-gray-800 hover:text-gray-600 transition-colors"
+            >
+              ADMIN
+            </RouterLink>
           </div>
-          <!-- 나중에 필요한 네비게이션 링크를 여기에 추가할 수 있습니다 -->
         </div>
       </div>
     </nav>
