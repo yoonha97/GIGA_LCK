@@ -37,19 +37,14 @@
                 ? 'bg-blue-500 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             "
+            @click="toggleTeamFilter(team.id)"
           >
             <img
               :src="team.logo"
               :alt="team.name"
               class="w-6 h-6 object-contain"
             />
-
-            <!-- 팀 이름 - 클릭 시 팀 필터링 -->
-            <span
-              class="text-sm font-medium"
-              @click.stop="toggleTeamFilter(team.id)"
-              >{{ team.name }}</span
-            >
+            <span class="text-sm font-medium">{{ team.name }}</span>
           </button>
         </div>
       </div>
@@ -243,11 +238,14 @@ export default {
         return matchStore.matches;
       }
 
+      // 선택된 팀의 이름 가져오기
+      const selectedTeamName = getTeamName(selectedTeam.value);
+
       // 팀 필터링 있을 때 팀 경기만 보여주기
       return matchStore.matches.filter(
         (match) =>
-          match.homeTeam === selectedTeam.value ||
-          match.awayTeam === selectedTeam.value
+          match.homeTeam === selectedTeamName ||
+          match.awayTeam === selectedTeamName
       );
     });
 
