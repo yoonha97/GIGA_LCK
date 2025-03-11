@@ -46,10 +46,10 @@
     <div class="w-24 text-right">
       <a
         v-if="replayLink"
-        :href="replayLink"
+        href="#"
         target="_blank"
         class="px-2 py-1 bg-gray-200 rounded text-sm text-blue-600"
-        @click.stop
+        @click.stop="openReplayLink"
       >
         다시보기
       </a>
@@ -95,9 +95,39 @@ export default defineComponent({
       router.push({ name: 'TeamDetailByName', params: { teamName } });
     };
 
+    const openReplayLink = (event) => {
+      event.preventDefault(); // 기본 링크 동작 방지
+
+      if (!props.replayLink) return;
+
+      // YouTube 링크에서 최적의 URL 생성
+      let finalUrl = props.replayLink;
+
+      // youtube.com/watch?v=VIDEO_ID 형식 처리
+      const watchMatch = props.replayLink.match(
+        /youtube\.com\/watch\?v=([^&]+)/
+      );
+      if (watchMatch) {
+        const videoId = watchMatch[1];
+        // embed URL보다는 원래 URL로 이동 (사용자 경험 측면)
+        finalUrl = `https://www.youtube.com/watch?v=${videoId}`;
+      }
+
+      // youtu.be/VIDEO_ID 형식 처리
+      const shortMatch = props.replayLink.match(/youtu\.be\/([^?&]+)/);
+      if (shortMatch) {
+        const videoId = shortMatch[1];
+        finalUrl = `https://www.youtube.com/watch?v=${videoId}`;
+      }
+
+      // 새 창에서 URL 열기
+      window.open(finalUrl, '_blank');
+    };
+
     return {
       navigateToDetail,
       navigateToTeam,
+      openReplayLink,
     };
   },
   methods: {
