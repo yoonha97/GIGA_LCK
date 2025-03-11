@@ -43,6 +43,31 @@
             </p>
           </div>
         </div>
+
+        <!-- 공유 버튼 섹션 -->
+        <div class="flex flex-col space-y-2 mt-2">
+          <button
+            @click="copyLinkToClipboard"
+            class="flex items-center justify-center px-5 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-sm transition-colors w-full"
+          >
+            <span class="material-icons-outlined text-lg mr-2">
+              content_copy
+            </span>
+            링크 복사
+          </button>
+
+          <button
+            @click="shareToKakao"
+            class="flex items-center justify-center px-5 py-3 bg-yellow-300 hover:bg-yellow-400 rounded-md text-sm transition-colors w-full"
+          >
+            <img
+              src="@/assets/images/kakao_icon.png"
+              alt="카카오톡"
+              class="w-4 h-4 mr-2"
+            />
+            카카오톡으로 공유
+          </button>
+        </div>
       </div>
 
       <!-- 팀 정보 섹션 -->
@@ -267,6 +292,12 @@ export default {
     const currentPlayerGameName = ref(null);
     const currentPlayerTagLine = ref(null);
 
+    // 클립보드 복사 관련 상태
+    const copySuccess = ref(false);
+    const copySuccessOpacity = computed(() => {
+      return copySuccess.value ? 'opacity-100' : 'opacity-0';
+    });
+
     onMounted(async () => {
       const { teamId, teamName } = route.params;
 
@@ -277,7 +308,95 @@ export default {
         await teamStore.loadTeamByName(teamName);
         await loadRecentMatches();
       }
+
+      // 카카오톡 SDK 초기화
+      initKakaoSDK();
     });
+
+    // 카카오톡 SDK 초기화
+    const initKakaoSDK = () => {
+      if (window.Kakao && !window.Kakao.isInitialized()) {
+        const kakaoAppKey = '1a716bca082450c8f74ba18b9b79b668';
+        window.Kakao.init(kakaoAppKey);
+        console.log('Kakao SDK initialized');
+      }
+    };
+
+    // 클립보드에 링크 복사
+    const copyLinkToClipboard = () => {
+      const url = window.location.href;
+
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          // 복사 성공 시 알림 표시
+          alert('링크가 클립보드에 복사되었습니다!');
+        })
+        .catch((err) => {
+          console.error('클립보드 복사 실패:', err);
+          alert('링크 복사에 실패했습니다. 다시 시도해주세요.');
+        });
+    };
+
+    // 카카오톡으로 공유
+    const shareToKakao = () => {
+      if (!window.Kakao || !window.Kakao.isInitialized()) {
+        console.error('Kakao SDK가 초기화되지 않았습니다.');
+        alert('카카오톡 공유 기능을 사용할 수 없습니다.');
+        return;
+      }
+
+      const currentTeam = teamStore.currentTeam;
+      if (!currentTeam) return;
+
+      // 공유할 이미지 URL (팀 로고)
+      const imageUrl = getTeamLogoUrl(currentTeam.teamName);
+
+      // 공유할 URL
+      const url = window.location.href;
+
+      window.Kakao.Link.sendDefault({
+        objectType: 'feed',
+        content: {
+          title: `${currentTeam.teamName} 팀 정보`,
+          description: `${getTeamFullName(
+            currentTeam.teamName
+          )} - 최근 전적: ${getRecentWinsCount()}승 ${getRecentLossesCount()}패`,
+          imageUrl: imageUrl,
+          link: {
+            mobileWebUrl: url,
+            webUrl: url,
+          },
+        },
+        buttons: [
+          {
+            title: '팀 정보 보기',
+            link: {
+              mobileWebUrl: url,
+              webUrl: url,
+            },
+          },
+        ],
+      });
+    };
+
+    // 팀 로고 URL 가져오기 (카카오톡 공유용)
+    const getTeamLogoUrl = (teamName) => {
+      // 실제 배포 환경에서의 팀 로고 전체 URL
+      // 로컬 파일은 카카오톡 공유에서 작동하지 않으므로 실제 웹에 호스팅된 이미지 URL을 사용해야 함
+      const baseUrl = 'https://your-domain.com/images/'; // 실제 배포 도메인으로 변경 필요
+
+      // 팀 이름에 따라 로고 URL 반환
+      switch (teamName) {
+        case 'T1':
+          return `${baseUrl}T1.png`;
+        case 'GEN':
+          return `${baseUrl}GEN.png`;
+        // 다른 팀들에 대한 매핑 추가
+        default:
+          return `${baseUrl}default-team.png`;
+      }
+    };
 
     onUnmounted(() => {
       teamStore.clearCurrentTeam();
@@ -631,6 +750,8 @@ export default {
       getRecentLossesCount,
       getRecentDrawsCount,
       navigateToMatchDetail,
+      copyLinkToClipboard,
+      shareToKakao,
     };
   },
 };
