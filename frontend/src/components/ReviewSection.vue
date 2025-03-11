@@ -216,7 +216,8 @@ export default {
           rating.value,
           comment.value.trim()
         );
-        // 새로운 리뷰를 reviews 배열에 추가
+        // 서버 응답을 그대로 사용
+        console.log('서버 응답:', newReview); // 디버깅용 로그
         reviews.value = [...reviews.value, newReview];
         resetForm();
       } catch (error) {
@@ -228,8 +229,11 @@ export default {
     // 모달 열기
     const openEditModal = (review) => {
       console.log('Opening edit modal with review:', review); // 디버깅용 로그
-      if (!review || typeof review.id === 'undefined') {
+      if (!review || !review.id || typeof review.id === 'undefined') {
         console.error('유효하지 않은 리뷰입니다:', review);
+        alert(
+          '유효하지 않은 리뷰입니다. 페이지를 새로고침 후 다시 시도해주세요.'
+        );
         return;
       }
       selectedReview.value = { ...review };
@@ -270,8 +274,11 @@ export default {
     // 리뷰 삭제
     const deleteUserReview = async (reviewId) => {
       console.log('Deleting review with ID:', reviewId); // 디버깅용 로그
-      if (typeof reviewId === 'undefined') {
+      if (!reviewId || typeof reviewId === 'undefined') {
         console.error('삭제할 리뷰 ID가 없습니다.');
+        alert(
+          '유효하지 않은 리뷰입니다. 페이지를 새로고침 후 다시 시도해주세요.'
+        );
         return;
       }
 

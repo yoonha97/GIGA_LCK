@@ -88,9 +88,9 @@ export const submitReview = async (matchId, rating, comment) => {
       rating,
       comment,
     });
-    // 서버 응답에서 review 객체를 반환
+    // 서버 응답에서 reviewId를 id로 매핑
     return {
-      id: response.data.id,
+      id: response.data.reviewId, // reviewId를 id로 매핑
       rating: response.data.rating,
       comment: response.data.comment,
     };
