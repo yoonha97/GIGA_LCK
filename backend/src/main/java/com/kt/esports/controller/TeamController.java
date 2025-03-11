@@ -1,5 +1,6 @@
 package com.kt.esports.controller;
 
+import com.kt.esports.dto.MatchDTO;
 import com.kt.esports.dto.PlayerDTO;
 import com.kt.esports.dto.TeamDTO;
 import com.kt.esports.service.TeamService;
@@ -43,5 +44,19 @@ public class TeamController {
 	public ResponseEntity<List<PlayerDTO>> getTeamPlayers(@PathVariable Long teamId) {
 		List<PlayerDTO> players = teamService.getTeamPlayers(teamId);
 		return ResponseEntity.ok(players);
+	}
+
+	// 팀의 최근 공식 경기 10건 조회
+	@GetMapping("/{teamId}/recent-matches")
+	public ResponseEntity<List<MatchDTO>> getTeamRecentMatches(@PathVariable Long teamId) {
+		List<MatchDTO> matches = teamService.getTeamRecentMatches(teamId);
+		return ResponseEntity.ok(matches);
+	}
+
+	// 팀 이름으로 최근 공식 경기 10건 조회
+	@GetMapping("/recent-matches-by-name")
+	public ResponseEntity<List<MatchDTO>> getTeamRecentMatchesByName(@RequestParam String teamName) {
+		List<MatchDTO> matches = teamService.getTeamRecentMatchesByName(teamName);
+		return ResponseEntity.ok(matches);
 	}
 }

@@ -128,15 +128,60 @@
         </div>
       </div>
 
-      <!-- 최근 경기 결과 섹션 (예시) -->
-      <!-- <div class="bg-gray-50 rounded-lg p-6">
-        <h2 class="text-2xl font-semibold mb-6 border-b pb-3">
-          최근 경기 결과
+      <!-- 최근 경기 결과 섹션 -->
+      <div class="bg-gray-50 rounded-lg p-6">
+        <h2
+          class="text-2xl font-semibold mb-6 border-b pb-3 flex justify-between items-center"
+        >
+          <span>최근 경기 결과</span>
+          <span
+            v-if="teamStore.recentMatches.length > 0"
+            class="text-gray-500 text-lg font-normal"
+          >
+            {{ getRecentWinsCount() }}승 {{ getRecentLossesCount() }}패
+          </span>
         </h2>
-        <div class="text-gray-500 text-lg py-10 text-center">
+
+        <!-- 로딩 상태 -->
+        <div v-if="teamStore.matchesLoading" class="text-center py-8">
+          <div
+            class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"
+          ></div>
+          <p class="text-gray-600">경기 정보를 불러오는 중...</p>
+        </div>
+
+        <!-- 에러 상태 -->
+        <div
+          v-else-if="teamStore.matchesError"
+          class="bg-red-50 text-red-600 p-4 rounded-lg mb-4"
+        >
+          {{ teamStore.matchesError }}
+          <button @click="loadRecentMatches" class="ml-2 underline">
+            다시 시도
+          </button>
+        </div>
+
+        <!-- 데이터 없음 -->
+        <div
+          v-else-if="teamStore.recentMatches.length === 0"
+          class="text-gray-500 text-lg py-10 text-center"
+        >
           최근 경기 데이터가 없습니다.
         </div>
-      </div> -->
+
+        <!-- 경기 목록 -->
+        <div v-else>
+          <div class="space-y-3">
+            <RecentMatchCard
+              v-for="(match, index) in teamStore.recentMatches"
+              :key="index"
+              :match="match"
+              :current-team-name="teamStore.currentTeam?.teamName"
+              @match-click="navigateToMatchDetail"
+            />
+          </div>
+        </div>
+      </div>
 
       <!-- 팀 응원 댓글 섹션 -->
       <SupportSection :teamId="getTeamId()" />
@@ -175,11 +220,41 @@ import DNFLogo from '@/assets/images/DNF.svg';
 import BFXLogo from '@/assets/images/BFX.webp';
 import SupportSection from '@/components/SupportSection.vue';
 import PlayerDetailModal from '@/components/PlayerDetailModal.vue';
+import RecentMatchCard from '@/components/RecentMatchCard.vue';
+
+// 팀 로고 매핑
+const TEAM_LOGOS = {
+  T1: T1Logo,
+  GEN: GENLogo,
+  DK: DKLogo,
+  BRO: BROLogo,
+  NS: NSLogo,
+  DRX: DRXLogo,
+  HLE: HLELogo,
+  KT: KTLogo,
+  DNF: DNFLogo,
+  BFX: BFXLogo,
+};
+
+// 팀 전체 이름 매핑
+const TEAM_FULL_NAMES = {
+  T1: 'T1',
+  GEN: 'Gen.G',
+  DK: 'Dplus KIA',
+  BRO: 'OKSavingsBank BRION',
+  NS: 'Nongshim RedForce',
+  DRX: 'DRX',
+  HLE: 'Hanwha Life Esports',
+  KT: 'KT Rolster',
+  DNF: 'DN FREECS',
+  BFX: 'BNK FEARX',
+};
 
 export default {
   components: {
     SupportSection,
     PlayerDetailModal,
+    RecentMatchCard,
   },
   setup() {
     const teamStore = useTeamStore();
@@ -197,8 +272,10 @@ export default {
 
       if (teamId) {
         await teamStore.loadTeamById(teamId);
+        await loadRecentMatches();
       } else if (teamName) {
         await teamStore.loadTeamByName(teamName);
+        await loadRecentMatches();
       }
     });
 
@@ -207,38 +284,93 @@ export default {
       playerStore.clearCurrentPlayer();
     });
 
+    // 최근 경기 불러오기
+    const loadRecentMatches = async () => {
+      const { teamId, teamName } = route.params;
+
+      try {
+        if (teamId) {
+          await teamStore.loadRecentMatchesById(teamId);
+        } else if (teamName) {
+          await teamStore.loadRecentMatchesByName(teamName);
+        } else if (teamStore.currentTeam?.teamId) {
+          await teamStore.loadRecentMatchesById(teamStore.currentTeam.teamId);
+        }
+      } catch (err) {
+        console.error('최근 경기 로드 중 오류 발생:', err);
+      }
+    };
+
+    // 날짜 포맷팅
+    const formatDate = (dateString) => {
+      if (!dateString) return '날짜 없음';
+
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+
+      return `${year}-${month}-${day}`;
+    };
+
+    // 경기 결과 클래스 (스타일링)
+    const getResultClass = (match) => {
+      const homeTeam = match.homeTeam;
+      const awayTeam = match.awayTeam;
+      const homeScore = getHomeScore(match);
+      const awayScore = getAwayScore(match);
+      const currentTeamName = teamStore.currentTeam?.teamName;
+
+      // 현재 팀이 홈팀인 경우
+      if (homeTeam === currentTeamName) {
+        if (homeScore > awayScore) return 'bg-green-100 text-green-800';
+        if (homeScore < awayScore) return 'bg-red-100 text-red-800';
+        return 'bg-gray-100 text-gray-800';
+      }
+
+      // 현재 팀이 원정팀인 경우
+      if (awayTeam === currentTeamName) {
+        if (awayScore > homeScore) return 'bg-green-100 text-green-800';
+        if (awayScore < homeScore) return 'bg-red-100 text-red-800';
+        return 'bg-gray-100 text-gray-800';
+      }
+
+      return 'bg-gray-100 text-gray-800';
+    };
+
+    // 경기 결과 텍스트
+    const getResultText = (match) => {
+      const homeTeam = match.homeTeam;
+      const awayTeam = match.awayTeam;
+      const homeScore = getHomeScore(match);
+      const awayScore = getAwayScore(match);
+      const currentTeamName = teamStore.currentTeam?.teamName;
+
+      // 현재 팀이 홈팀인 경우
+      if (homeTeam === currentTeamName) {
+        if (homeScore > awayScore) return '승리';
+        if (homeScore < awayScore) return '패배';
+        return '무승부';
+      }
+
+      // 현재 팀이 원정팀인 경우
+      if (awayTeam === currentTeamName) {
+        if (awayScore > homeScore) return '승리';
+        if (awayScore < homeScore) return '패배';
+        return '무승부';
+      }
+
+      return '정보 없음';
+    };
+
     // 팀 로고 가져오기
     const getTeamLogo = (teamName) => {
-      const logos = {
-        T1: T1Logo,
-        GEN: GENLogo,
-        DK: DKLogo,
-        BRO: BROLogo,
-        NS: NSLogo,
-        DRX: DRXLogo,
-        HLE: HLELogo,
-        KT: KTLogo,
-        DNF: DNFLogo,
-        BFX: BFXLogo,
-      };
-      return logos[teamName] || '';
+      return TEAM_LOGOS[teamName] || '';
     };
 
     // 팀 전체 이름 가져오기
     const getTeamFullName = (teamName) => {
-      const fullNames = {
-        T1: 'T1',
-        GEN: 'Gen.G',
-        DK: 'Dplus KIA',
-        BRO: 'OKSavingsBank BRION',
-        NS: 'Nongshim RedForce',
-        DRX: 'DRX',
-        HLE: 'Hanwha Life Esports',
-        KT: 'KT Rolster',
-        DNF: 'DN FREECS',
-        BFX: 'BNK FEARX',
-      };
-      return fullNames[teamName] || teamName;
+      return TEAM_FULL_NAMES[teamName] || teamName;
     };
 
     const navigateToTeam = (player) => {
@@ -257,6 +389,19 @@ export default {
       router.push({
         name: 'TeamDetailByName',
         params: { teamName },
+      });
+    };
+
+    // 경기 상세 페이지로 이동
+    const navigateToMatchDetail = (matchId) => {
+      if (!matchId) {
+        console.error('Match ID is missing');
+        return;
+      }
+
+      router.push({
+        name: 'match-detail',
+        params: { id: matchId.toString() },
       });
     };
 
@@ -284,28 +429,7 @@ export default {
         currentPlayerGameName.value = playerStore.currentPlayer.riotId || null;
         currentPlayerTagLine.value = playerStore.currentPlayer.tagLine || null;
 
-        // 디버그: API에서 가져오지 못한 경우 임시 테스트용 데이터 사용
-        // 실제 데이터베이스에 일치하는 값으로 변경
-        if (!currentPlayerGameName.value && !currentPlayerTagLine.value) {
-          console.log('DEBUG: Using hardcoded test values');
-          if (playerName === '페이커' || playerName === 'Faker') {
-            currentPlayerGameName.value = 'diuepoti';
-            currentPlayerTagLine.value = 'qesdf';
-          } else if (playerName === '쿠즈' || playerName === 'Cuzz') {
-            currentPlayerGameName.value = 'Cuzz';
-            currentPlayerTagLine.value = 'KR1';
-          } else if (playerName === '켈린' || playerName === 'Kellin') {
-            currentPlayerGameName.value = '아구몬';
-            currentPlayerTagLine.value = '0509';
-          } else if (playerName === '데프트' || playerName === 'Deft') {
-            currentPlayerGameName.value = '스컬지';
-            currentPlayerTagLine.value = 'K T';
-          } else if (playerName === '피넛' || playerName === 'Peanut') {
-            currentPlayerGameName.value = '나는먼지';
-            currentPlayerTagLine.value = 'KR11';
-          }
-        }
-
+        // 실제 선수 정보 로그
         console.log('Player account info:', {
           riotId: currentPlayerGameName.value,
           tagLine: currentPlayerTagLine.value,
@@ -341,6 +465,147 @@ export default {
       return '선수 초기 문자 정보 없음';
     };
 
+    // Try different possible score field names
+    const getHomeScore = (match) => {
+      if (!match) return 0;
+
+      try {
+        // 여러 가능한 필드명 시도
+        if (match.homeTeamScore !== undefined)
+          return Number(match.homeTeamScore);
+        if (match.homeScore !== undefined) return Number(match.homeScore);
+
+        // score 필드가 있으면 파싱 시도 (예: "3-1" 형식)
+        if (match.score) {
+          const parts = match.score.split('-');
+          if (parts.length === 2 && !isNaN(parseInt(parts[0]))) {
+            return parseInt(parts[0]);
+          }
+        }
+
+        // result 필드가 있으면 파싱 시도
+        if (match.result) {
+          // "승" 또는 "패" 등의 텍스트가 아니라 숫자 형식 확인
+          const resultMatch = match.result.match(/(\d+)[^\d]+(\d+)/);
+          if (resultMatch && resultMatch.length >= 3) {
+            // 현재 팀이 홈팀인지 원정팀인지에 따라 다름
+            if (match.homeTeam === teamStore.currentTeam?.teamName) {
+              return parseInt(resultMatch[1]); // 첫 번째 숫자
+            } else {
+              return parseInt(resultMatch[2]); // 두 번째 숫자
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error calculating home score:', err);
+      }
+
+      return 0; // 기본값
+    };
+
+    const getAwayScore = (match) => {
+      if (!match) return 0;
+
+      try {
+        // 여러 가능한 필드명 시도
+        if (match.awayTeamScore !== undefined)
+          return Number(match.awayTeamScore);
+        if (match.awayScore !== undefined) return Number(match.awayScore);
+
+        // score 필드가 있으면 파싱 시도 (예: "3-1" 형식)
+        if (match.score) {
+          const parts = match.score.split('-');
+          if (parts.length === 2 && !isNaN(parseInt(parts[1]))) {
+            return parseInt(parts[1]);
+          }
+        }
+
+        // result 필드가 있으면 파싱 시도
+        if (match.result) {
+          // "승" 또는 "패" 등의 텍스트가 아니라 숫자 형식 확인
+          const resultMatch = match.result.match(/(\d+)[^\d]+(\d+)/);
+          if (resultMatch && resultMatch.length >= 3) {
+            // 현재 팀이 홈팀인지 원정팀인지에 따라 다름
+            if (match.homeTeam === teamStore.currentTeam?.teamName) {
+              return parseInt(resultMatch[2]); // 두 번째 숫자
+            } else {
+              return parseInt(resultMatch[1]); // 첫 번째 숫자
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error calculating away score:', err);
+      }
+
+      return 0; // 기본값
+    };
+
+    // Environment check for debug output
+    const isDevelopment = computed(() => {
+      return (
+        import.meta.env.MODE === 'development' || import.meta.env.DEV === true
+      );
+    });
+
+    // 최근 경기 승패 기록 계산
+    const getRecentWinsCount = () => {
+      if (!teamStore.recentMatches || !teamStore.recentMatches.length) return 0;
+
+      return teamStore.recentMatches.filter((match) => {
+        const homeTeam = match.homeTeam;
+        const awayTeam = match.awayTeam;
+        const homeScore = getHomeScore(match);
+        const awayScore = getAwayScore(match);
+        const currentTeamName = teamStore.currentTeam?.teamName;
+
+        if (homeTeam === currentTeamName) {
+          return homeScore > awayScore;
+        } else if (awayTeam === currentTeamName) {
+          return awayScore > homeScore;
+        }
+        return false;
+      }).length;
+    };
+
+    const getRecentLossesCount = () => {
+      if (!teamStore.recentMatches || !teamStore.recentMatches.length) return 0;
+
+      return teamStore.recentMatches.filter((match) => {
+        const homeTeam = match.homeTeam;
+        const awayTeam = match.awayTeam;
+        const homeScore = getHomeScore(match);
+        const awayScore = getAwayScore(match);
+        const currentTeamName = teamStore.currentTeam?.teamName;
+
+        if (homeTeam === currentTeamName) {
+          return homeScore < awayScore;
+        } else if (awayTeam === currentTeamName) {
+          return awayScore < homeScore;
+        }
+        return false;
+      }).length;
+    };
+
+    const getRecentDrawsCount = () => {
+      if (!teamStore.recentMatches || !teamStore.recentMatches.length) return 0;
+
+      return teamStore.recentMatches.filter((match) => {
+        const homeTeam = match.homeTeam;
+        const awayTeam = match.awayTeam;
+        const homeScore = getHomeScore(match);
+        const awayScore = getAwayScore(match);
+        const currentTeamName = teamStore.currentTeam?.teamName;
+
+        if (
+          (homeTeam === currentTeamName || awayTeam === currentTeamName) &&
+          homeScore === awayScore
+        ) {
+          return true;
+        }
+        return false;
+      }).length;
+    };
+
     return {
       teamStore,
       playerStore,
@@ -355,6 +620,17 @@ export default {
       getPlayerInitial,
       currentPlayerGameName,
       currentPlayerTagLine,
+      formatDate,
+      getResultClass,
+      getResultText,
+      loadRecentMatches,
+      getHomeScore,
+      getAwayScore,
+      isDevelopment,
+      getRecentWinsCount,
+      getRecentLossesCount,
+      getRecentDrawsCount,
+      navigateToMatchDetail,
     };
   },
 };

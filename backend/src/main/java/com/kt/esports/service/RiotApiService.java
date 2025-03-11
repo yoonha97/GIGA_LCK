@@ -31,11 +31,6 @@ public class RiotApiService {
 		String path = "/riot/account/v1/accounts/by-riot-id/"
 				+ UriUtils.encode(gameName, "UTF-8") + "/" + tagLine;
 
-		System.out.println("------------DEBUG-----------");
-		System.out.println("Calling Riot API with gameName: " + gameName + ", tagLine: " + tagLine);
-		System.out.println("Full path: " + path);
-		System.out.println("----------------------------");
-
 		Map response = riotAsiaWebClient.get()
 				.uri(path)
 				.headers(this::addRiotHeaders)
