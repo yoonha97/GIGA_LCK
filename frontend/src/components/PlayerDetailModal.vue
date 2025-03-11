@@ -87,15 +87,24 @@
 
               <!-- 분석 에러 -->
               <div v-else-if="playerStore.analysisError" class="py-2">
-                <p class="text-red-500 text-sm">
-                  {{ playerStore.analysisError }}
-                </p>
+                <div
+                  class="bg-red-50 border border-red-200 rounded-lg p-4 mb-3"
+                >
+                  <p class="text-red-600 text-sm font-medium">
+                    {{ playerStore.analysisError }}
+                  </p>
+                  <div class="mt-2 text-xs text-gray-600" v-if="isDev">
+                    <p>디버그 정보:</p>
+                    <p>Game Name: {{ props.gameName }}</p>
+                    <p>Tag Line: {{ props.tagLine }}</p>
+                  </div>
+                </div>
                 <button
                   v-if="showAnalysisButton"
                   @click="loadAnalysis"
                   class="mt-2 bg-blue-500 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-600"
                 >
-                  분석 데이터 불러오기
+                  다시 시도하기
                 </button>
               </div>
 
@@ -275,11 +284,23 @@ export default {
         : '';
     });
 
+    // 개발 환경 확인
+    const isDev = computed(() => {
+      return import.meta.env.DEV === true;
+    });
+
     // 분석 데이터 로드
     const loadAnalysis = async () => {
       console.log('loadAnalysis called with:', props.gameName, props.tagLine);
       if (props.gameName && props.tagLine) {
-        await playerStore.loadPlayerAnalysis(props.gameName, props.tagLine);
+        try {
+          await playerStore.loadPlayerAnalysis(props.gameName, props.tagLine);
+        } catch (error) {
+          console.error(
+            'Modal component caught error while loading analysis:',
+            error
+          );
+        }
       } else {
         console.error('Cannot load analysis: gameName or tagLine is missing', {
           gameName: props.gameName,
@@ -327,6 +348,7 @@ export default {
       showAnalysisButton,
       formattedAnalysis,
       hasPlayerInfo,
+      isDev,
     };
   },
 };

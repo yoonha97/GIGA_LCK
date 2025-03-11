@@ -82,7 +82,14 @@ export const usePlayerStore = defineStore('player', {
         this.playerAnalysis = analysisData;
         return analysisData;
       } catch (error) {
-        this.analysisError = '분석 정보를 불러오는 중 오류가 발생했습니다.';
+        // 개발 환경에서는 더 자세한 오류 메시지 표시
+        if (import.meta.env.DEV) {
+          this.analysisError = `분석 정보를 불러오는 중 오류가 발생했습니다. 세부 정보: ${
+            error.message || '알 수 없는 오류'
+          }`;
+        } else {
+          this.analysisError = '분석 정보를 불러오는 중 오류가 발생했습니다.';
+        }
         console.error('분석 정보를 불러오는 중 오류 발생:', error);
         return null;
       } finally {

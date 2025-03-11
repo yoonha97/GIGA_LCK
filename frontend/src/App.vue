@@ -3,7 +3,10 @@
     <nav class="bg-white shadow-sm">
       <div class="container mx-auto px-4">
         <div class="flex justify-between h-16 items-center">
-          <div class="h-20 w-20 flex items-center justify-center">
+          <div
+            class="h-20 w-20 flex items-center justify-center cursor-pointer"
+            @click="navigateToHome"
+          >
             <img :src="logo" alt="Logo" class="h-16 w-auto object-contain" />
           </div>
           <div class="flex items-center space-x-4">
@@ -49,6 +52,11 @@ export default defineComponent({
     return {
       logo: Logo,
     };
+  },
+  methods: {
+    navigateToHome() {
+      this.$router.push('/');
+    },
   },
 });
 </script>

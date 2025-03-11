@@ -316,24 +316,21 @@ button {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Active state for selected team */
 .team-filter-button[class*='bg-blue-500'],
 .team-filter-all[class*='bg-blue-500'] {
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
 }
 
-/* White background for logo container needs a slight border in light mode */
 .bg-white {
   border: 1px solid rgba(229, 231, 235, 0.8);
 }
 
-/* Hide scrollbar but keep functionality */
 .hide-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
 }
 </style>
