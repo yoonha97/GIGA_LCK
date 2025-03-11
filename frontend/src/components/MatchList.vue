@@ -38,18 +38,12 @@
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             "
           >
-            <!-- 팀 로고 - 클릭 시 팀 상세 페이지로 이동 -->
-            <div
-              class="w-7 h-7 flex-shrink-0 rounded-full bg-white overflow-hidden flex items-center justify-center cursor-pointer"
-              @click.stop="navigateToTeam(team.id)"
-              title="팀 상세정보 보기"
-            >
-              <img
-                :src="team.logo"
-                :alt="team.name"
-                class="w-6 h-6 object-contain"
-              />
-            </div>
+            <img
+              :src="team.logo"
+              :alt="team.name"
+              class="w-6 h-6 object-contain"
+            />
+
             <!-- 팀 이름 - 클릭 시 팀 필터링 -->
             <span
               class="text-sm font-medium"
