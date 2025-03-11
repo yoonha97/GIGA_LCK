@@ -73,17 +73,19 @@
         <div class="font-bold text-lg py-2 border-b bg-gray-200 px-4">
           {{ date }}
         </div>
-        <MatchCard
-          v-for="match in group"
-          :key="match.matchId"
-          :matchId="match.matchId"
-          :time="match.time"
-          :stage="match.stage"
-          :homeTeam="match.homeTeam"
-          :score="match.score"
-          :awayTeam="match.awayTeam"
-          :replayLink="match.replayLink"
-        />
+        <div class="cursor-pointer">
+          <MatchCard
+            v-for="match in group"
+            :key="match.matchId"
+            :matchId="match.matchId"
+            :time="match.time"
+            :stage="match.stage"
+            :homeTeam="match.homeTeam"
+            :score="match.score"
+            :awayTeam="match.awayTeam"
+            :replayLink="match.replayLink"
+          />
+        </div>
       </div>
     </div>
   </div>
