@@ -18,9 +18,6 @@ public class YouTubeService {
 
 	private final WebClient youtubeWebClient;
 
-	@Value("${youtube.api.key}")
-	private String apiKey;
-
 	private static final String LCK_CHANNEL_NAME = "LCK"; // LCK 공식 채널 이름
 
 	// 특정 경기의 다시보기 영상 검색 (LCK 공식 채널)
@@ -39,7 +36,6 @@ public class YouTubeService {
 							.queryParam("type", "video")
 							.queryParam("maxResults", 5)
 							.queryParam("order", "relevance")
-							.queryParam("key", apiKey)
 							.build())
 					.retrieve()
 					.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {

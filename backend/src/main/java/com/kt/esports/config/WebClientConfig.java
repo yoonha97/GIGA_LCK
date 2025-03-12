@@ -11,11 +11,15 @@ public class WebClientConfig {
 	@Value("${openai.api.key}")
 	private String openaiApiKey;
 
+	@Value("${youtube.api.key}")
+	private String youtubeApiKey;
+
 	// YouTube API WebClient
 	@Bean
 	public WebClient youtubeWebClient() {
 		return WebClient.builder()
 				.baseUrl("https://www.googleapis.com/youtube/v3")
+				.defaultHeader("X-goog-api-key", youtubeApiKey)
 				.build();
 	}
 
